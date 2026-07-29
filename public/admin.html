@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Dashboard — Enchanted Daydreams by Yuki</title>
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<div class="admin-shell">
+  <aside class="admin-sidebar">
+    <span class="logo"><img src="images/logo.png" alt="Yuki" style="height:72px;"></span>
+    <ul class="admin-nav">
+      <li><button class="active" data-tab="tabOverview">Overview</button></li>
+      <li><button data-tab="tabProducts">Inventory</button></li>
+      <li><button data-tab="tabAddProduct">Add Product</button></li>
+      <li><button data-tab="tabOrders">Orders</button></li>
+      <li><button data-tab="tabAdmins">Admin Users</button></li>
+    </ul>
+    <div style="margin-top:40px;">
+      <button id="logoutBtn" class="btn btn-outline" style="border-color:rgba(255,255,255,0.3); color:var(--cream); width:100%;">Log Out</button>
+    </div>
+  </aside>
+
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <h1>Welcome back, <span id="adminNameLabel">Admin</span></h1>
+    </div>
+
+    <!-- OVERVIEW -->
+    <div class="admin-tab" id="tabOverview">
+      <div class="stat-cards">
+        <div class="stat-card"><div class="label">Total Products</div><div class="value" id="statProducts">—</div></div>
+        <div class="stat-card"><div class="label">Total Orders</div><div class="value" id="statOrders">—</div></div>
+        <div class="stat-card"><div class="label">Pending Confirmation</div><div class="value" id="statPending">—</div></div>
+        <div class="stat-card"><div class="label">Completed Revenue</div><div class="value" id="statRevenue">—</div></div>
+      </div>
+      <div class="panel">
+        <h2>How WhatsApp Checkout Works</h2>
+        <p style="color:#5b5162; font-size:0.9rem; line-height:1.7;">
+          Customers never enter payment details on the site. When they hit "Checkout via WhatsApp" or "Buy Now via WhatsApp",
+          the order is logged here as <strong>Pending Confirmation</strong>, and their WhatsApp app opens with a pre-typed message —
+          item names, quantities, prices, and total — sent straight to your business number. From there you can confirm availability,
+          collect payment however you prefer, and update the order status in the Orders tab as it moves through Confirmed → Shipped → Completed.
+        </p>
+      </div>
+    </div>
+
+    <!-- INVENTORY -->
+    <div class="admin-tab tab-hidden" id="tabProducts">
+      <div class="panel">
+        <h2>Inventory</h2>
+        <table>
+          <thead>
+            <tr><th>Image</th><th>Title</th><th>Category</th><th>Price</th><th>Stock</th><th>Featured</th><th>Top Pick 3D</th><th></th></tr>
+          </thead>
+          <tbody id="productsTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADD PRODUCT -->
+    <div class="admin-tab tab-hidden" id="tabAddProduct">
+      <div class="panel">
+        <h2>Add New Product</h2>
+        <form id="productForm">
+          <div class="form-group"><label>Title</label><input type="text" name="title" required></div>
+          <div class="form-group"><label>Price (₹)</label><input type="number" name="price" min="0" step="1" required></div>
+          <div class="form-group">
+            <label>Category</label>
+            <select name="category" required>
+              <option value="Earrings">Earrings</option>
+              <option value="Necklaces">Necklaces</option>
+              <option value="Bracelets">Bracelets</option>
+              <option value="Custom">Custom</option>
+            </select>
+          </div>
+          <div class="form-group"><label>Description</label><textarea name="description" rows="3" required></textarea></div>
+          <div class="form-group"><label>Material Details</label><textarea name="materialDetails" rows="2"></textarea></div>
+          <div class="form-group"><label>Stock Quantity</label><input type="number" name="stock" min="0" step="1" required></div>
+          <div class="form-group">
+            <label>Product Images</label>
+            <input type="file" id="productImages" name="images" accept="image/*" multiple>
+            <div class="thumb-preview" id="thumbPreview"></div>
+          </div>
+          <div class="form-group">
+            <label>3D Model (.glb) — optional</label>
+            <input type="file" name="model3D" accept=".glb,.gltf">
+          </div>
+          <div class="checkbox-row"><input type="checkbox" id="isFeatured"> <label for="isFeatured" style="margin:0;">Featured on Landing Page</label></div>
+          <div class="checkbox-row"><input type="checkbox" id="isTopPick3D"> <label for="isTopPick3D" style="margin:0;">Replace Top Pick 3D Model</label></div>
+          <button type="submit" class="btn btn-primary">Add Product</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- ORDERS -->
+    <div class="admin-tab tab-hidden" id="tabOrders">
+      <div class="panel">
+        <h2>Order Management</h2>
+        <table>
+          <thead>
+            <tr><th>Order</th><th>Customer</th><th>Items</th><th>Total</th><th>Status</th><th>Update</th></tr>
+          </thead>
+          <tbody id="ordersTableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ADMIN USERS -->
+    <div class="admin-tab tab-hidden" id="tabAdmins">
+      <div class="panel">
+        <h2>Create New Admin</h2>
+        <form id="createAdminForm">
+          <div class="form-group"><label>Name</label><input type="text" id="newAdminName" required></div>
+          <div class="form-group"><label>Email</label><input type="email" id="newAdminEmail" required></div>
+          <div class="form-group"><label>Password</label><input type="password" id="newAdminPassword" minlength="8" required></div>
+          <button type="submit" class="btn btn-primary">Create Admin Account</button>
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

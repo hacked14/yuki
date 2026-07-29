@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>My Account — Enchanted Daydreams by Yuki</title>
+<link rel="stylesheet" href="css/style.css">
+<style>
+  .account-wrap { max-width: 720px; margin: 0 auto; padding: 80px 28px; }
+  .order-row { background: var(--white); border-radius: var(--radius-lg); padding: 20px 24px; margin-bottom: 16px; box-shadow: var(--shadow); }
+  .order-row .top { display:flex; justify-content:space-between; margin-bottom:8px; font-weight:600; }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <a href="/index.html" class="logo"><img src="images/logo.png" alt="Yuki" style="height:72px;"></a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="/index.html">Home</a></li>
+        <li><a href="/shop.html">Shop</a></li>
+      </ul>
+    </nav>
+    <div class="header-icons">
+      <button class="icon-btn" id="cartIconBtn" aria-label="Cart">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+        <span class="cart-badge">0</span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="account-wrap">
+  <h1 id="welcomeName">My Account</h1>
+  <p style="color:#7a7080; margin-bottom:30px;">Your recent order enquiries sent via WhatsApp.</p>
+  <div id="ordersList"><div class="empty-state">Loading…</div></div>
+  <button class="btn btn-outline" onclick="Auth.logout()" style="margin-top:20px;">Log Out</button>
+</div>
+
+<div class="overlay" id="cartOverlay"></div>
+<div class="cart-drawer" id="cartDrawer">
+  <div class="cart-header"><h3 style="margin:0;">Your Bag</h3><button class="modal-close" id="cartDrawerClose" style="position:static;">✕</button></div>
+  <div class="cart-items" id="cartItems"></div>
+  <div class="cart-footer" id="cartFooter" style="display:none;">
+    <div class="cart-total"><span>Total</span><span id="cartTotal">₹0</span></div>
+    <button class="btn btn-whatsapp btn-block" id="whatsappCheckoutBtn">Checkout via WhatsApp</button>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/cart.js"></script>
+<script>
+  if (!Auth.isLoggedIn()) window.location.href = '/index.html';
+  document.getElementById('welcomeName').textContent = `Hi, ${Auth.getUser()?.name || 'there'} 👋`;
+
+  async function loadMyOrders() {
+    const list = document.getElementById('ordersList');
+    try {
+      const res = await fetch(`${API_BASE}/orders/mine`, { headers: Auth.authHeader() });
+      const orders = await res.json();
+      if (!orders.length) {
+        list.innerHTML = `<div class="empty-state">No orders yet. Once you checkout via WhatsApp, they'll show up here.</div>`;
+        return;
+      }
+      list.innerHTML = orders
+        .map(
+          (o) => `
+        <div class="order-row">
+          <div class="top"><span>#${o._id.slice(-8).toUpperCase()}</span><span>₹${o.totalAmount}</span></div>
+          <div style="color:#7a7080; font-size:0.85rem;">${o.items.map((i) => `${i.title} ×${i.quantity}`).join(', ')}</div>
+          <div style="margin-top:8px; font-size:0.8rem; text-transform:uppercase; letter-spacing:0.05em; color: var(--sage-dark);">${o.orderStatus}</div>
+        </div>`
+        )
+        .join('');
+    } catch (err) {
+      list.innerHTML = `<div class="empty-state">Could not load your orders right now.</div>`;
+    }
+  }
+  loadMyOrders();
+</script>
+</body>
+</html>
